@@ -3,6 +3,7 @@ import { useAuth } from "./context/AuthContext"
 import { LoginForm } from "./components/login-form"
 import { useState } from "react"
 import { RegisterForm } from "./components/register-form"
+import { PersonList } from "./components/person-list"
 
 export function App() {
   const [isRegistering, setIsRegistering] = useState(false)
@@ -23,6 +24,8 @@ export function App() {
   return (
     <main className="min-h-svh flex flex-col bg-zinc-200">
       <Header showLogoutButton />
+
+      <PersonList />
     </main>
   )
 }
