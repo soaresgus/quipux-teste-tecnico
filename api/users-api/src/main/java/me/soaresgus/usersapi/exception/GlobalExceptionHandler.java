@@ -8,6 +8,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import java.util.List;
 
 @RestControllerAdvice
@@ -24,6 +26,22 @@ public class GlobalExceptionHandler {
                             : error.getObjectName();
                     return new ApiErrorResponse.FieldError(field, error.getDefaultMessage());
                 })
+                .toList();
+
+        ApiErrorResponse response = ApiErrorResponse.of(
+                HttpStatus.BAD_REQUEST.value(),
+                "Erro de validação",
+                errors
+        );
+
+        return ResponseEntity.badRequest().body(response);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ApiErrorResponse> handleConstraintViolation(ConstraintViolationException ex) {
+        List<ApiErrorResponse.FieldError> errors = ex.getConstraintViolations()
+                .stream()
+                .map(this::toFieldError)
                 .toList();
 
         ApiErrorResponse response = ApiErrorResponse.of(
@@ -53,6 +71,15 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
 
+    @ExceptionHandler(PersonNotFoundException.class)
+    public ResponseEntity<ApiErrorResponse> handlePersonNotFound(PersonNotFoundException ex) {
+        ApiErrorResponse response = ApiErrorResponse.of(
+                HttpStatus.NOT_FOUND.value(),
+                ex.getMessage()
+        );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
     @ExceptionHandler(InvalidCredentialsException.class)
     public ResponseEntity<ApiErrorResponse> handleInvalidCredentials(InvalidCredentialsException ex) {
         ApiErrorResponse response = ApiErrorResponse.of(
@@ -60,6 +87,13 @@ public class GlobalExceptionHandler {
                 ex.getMessage()
         );
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    }
+
+    private ApiErrorResponse.FieldError toFieldError(ConstraintViolation<?> violation) {
+        return new ApiErrorResponse.FieldError(
+                violation.getPropertyPath().toString(),
+                violation.getMessage()
+        );
     }
 
 }

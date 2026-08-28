@@ -4,9 +4,13 @@ import jakarta.validation.Valid;
 import me.soaresgus.usersapi.dto.request.RegisterPersonRequest;
 import me.soaresgus.usersapi.dto.response.PersonResponse;
 import me.soaresgus.usersapi.service.PersonService;
+import me.soaresgus.usersapi.validation.ValidCpf;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -14,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
+@Validated
 public class PersonController {
 
     private final PersonService personService;
@@ -31,6 +36,17 @@ public class PersonController {
     @GetMapping("/list")
     public ResponseEntity<List<PersonResponse>> list() {
         return ResponseEntity.ok(personService.listAll());
+    }
+
+    @GetMapping("/list/{cpf}")
+    public ResponseEntity<PersonResponse> findByCpf(@PathVariable @ValidCpf String cpf) {
+        return ResponseEntity.ok(personService.findByCpf(cpf));
+    }
+
+    @DeleteMapping("/list/{cpf}")
+    public ResponseEntity<Void> deleteByCpf(@PathVariable @ValidCpf String cpf) {
+        personService.deleteByCpf(cpf);
+        return ResponseEntity.noContent().build();
     }
 
 }

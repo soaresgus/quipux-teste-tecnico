@@ -4,6 +4,7 @@ import me.soaresgus.usersapi.dto.request.RegisterPersonRequest;
 import me.soaresgus.usersapi.dto.response.PersonResponse;
 import me.soaresgus.usersapi.entity.Person;
 import me.soaresgus.usersapi.exception.CpfAlreadyExistsException;
+import me.soaresgus.usersapi.exception.PersonNotFoundException;
 import me.soaresgus.usersapi.repository.PersonRepository;
 import me.soaresgus.usersapi.validation.CpfUtils;
 import org.springframework.stereotype.Service;
@@ -39,6 +40,23 @@ public class PersonService {
         return personRepository.findAll().stream()
                 .map(this::toResponse)
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public PersonResponse findByCpf(String cpf) {
+        return toResponse(findPersonByCpf(cpf));
+    }
+
+    @Transactional
+    public void deleteByCpf(String cpf) {
+        Person person = findPersonByCpf(cpf);
+        personRepository.delete(person);
+    }
+
+    private Person findPersonByCpf(String cpf) {
+        String normalizedCpf = CpfUtils.normalize(cpf);
+        return personRepository.findByCpf(normalizedCpf)
+                .orElseThrow(PersonNotFoundException::new);
     }
 
     private PersonResponse toResponse(Person person) {
