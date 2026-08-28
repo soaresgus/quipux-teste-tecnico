@@ -1,8 +1,10 @@
 package me.soaresgus.usersapi.service;
 
 import me.soaresgus.usersapi.dto.request.RegisterPersonRequest;
+import me.soaresgus.usersapi.dto.response.PersonNationalityResponse;
 import me.soaresgus.usersapi.dto.response.PersonResponse;
 import me.soaresgus.usersapi.entity.Person;
+import me.soaresgus.usersapi.client.NationalizeClient;
 import me.soaresgus.usersapi.exception.CpfAlreadyExistsException;
 import me.soaresgus.usersapi.exception.PersonNotFoundException;
 import me.soaresgus.usersapi.repository.PersonRepository;
@@ -16,9 +18,11 @@ import java.util.List;
 public class PersonService {
 
     private final PersonRepository personRepository;
+    private final NationalizeClient nationalizeClient;
 
-    public PersonService(PersonRepository personRepository) {
+    public PersonService(PersonRepository personRepository, NationalizeClient nationalizeClient) {
         this.personRepository = personRepository;
+        this.nationalizeClient = nationalizeClient;
     }
 
     @Transactional
@@ -51,6 +55,15 @@ public class PersonService {
     public void deleteByCpf(String cpf) {
         Person person = findPersonByCpf(cpf);
         personRepository.delete(person);
+    }
+
+    public PersonNationalityResponse findNationalityByCpf(String cpf) {
+        Person person = findPersonByCpf(cpf);
+        return new PersonNationalityResponse(
+                person.getId(),
+                person.getName(),
+                nationalizeClient.getNationalities(person.getName())
+        );
     }
 
     private Person findPersonByCpf(String cpf) {

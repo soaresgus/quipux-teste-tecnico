@@ -2,6 +2,7 @@ package me.soaresgus.usersapi.controller;
 
 import jakarta.validation.Valid;
 import me.soaresgus.usersapi.dto.request.RegisterPersonRequest;
+import me.soaresgus.usersapi.dto.response.PersonNationalityResponse;
 import me.soaresgus.usersapi.dto.response.PersonResponse;
 import me.soaresgus.usersapi.service.PersonService;
 import me.soaresgus.usersapi.validation.ValidCpf;
@@ -47,6 +48,11 @@ public class PersonController {
     public ResponseEntity<Void> deleteByCpf(@PathVariable @ValidCpf String cpf) {
         personService.deleteByCpf(cpf);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/findNacionalityByPerson/{cpf}")
+    public ResponseEntity<PersonNationalityResponse> findNationalityByPerson(@PathVariable @ValidCpf String cpf) {
+        return ResponseEntity.ok(personService.findNationalityByCpf(cpf));
     }
 
 }

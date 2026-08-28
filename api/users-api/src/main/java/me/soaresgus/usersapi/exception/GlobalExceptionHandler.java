@@ -89,6 +89,15 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 
+    @ExceptionHandler(ExternalServiceException.class)
+    public ResponseEntity<ApiErrorResponse> handleExternalService(ExternalServiceException ex) {
+        ApiErrorResponse response = ApiErrorResponse.of(
+                HttpStatus.BAD_GATEWAY.value(),
+                ex.getMessage()
+        );
+        return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(response);
+    }
+
     private ApiErrorResponse.FieldError toFieldError(ConstraintViolation<?> violation) {
         return new ApiErrorResponse.FieldError(
                 violation.getPropertyPath().toString(),
