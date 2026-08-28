@@ -9,6 +9,8 @@ import me.soaresgus.usersapi.validation.CpfUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 public class PersonService {
 
@@ -29,12 +31,23 @@ public class PersonService {
         Person person = new Person(cpf, request.name(), request.surname(), request.email());
         Person savedPerson = personRepository.save(person);
 
+        return toResponse(savedPerson);
+    }
+
+    @Transactional(readOnly = true)
+    public List<PersonResponse> listAll() {
+        return personRepository.findAll().stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    private PersonResponse toResponse(Person person) {
         return new PersonResponse(
-                savedPerson.getId(),
-                savedPerson.getCpf(),
-                savedPerson.getName(),
-                savedPerson.getSurname(),
-                savedPerson.getEmail()
+                person.getId(),
+                person.getCpf(),
+                person.getName(),
+                person.getSurname(),
+                person.getEmail()
         );
     }
 
