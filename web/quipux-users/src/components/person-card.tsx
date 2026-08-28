@@ -9,14 +9,16 @@ import countryNames from "@/constants/country-names.json";
 
 interface PersonCardProps {
     person: Person
+    onDeleted?: () => void
 }
 
-export function PersonCard({ person }: PersonCardProps) {
+export function PersonCard({ person, onDeleted }: PersonCardProps) {
     const { mutateAsync: deletePersonByCpf, isPending } = useDeletePersonByCpf(person.cpf)
     const { data: nationalities, isLoading: isNationalitiesLoading } = usePersonNationalitiesByCpf(person.cpf)
 
     const handleDeletePersonByCpf = async () => {
         await deletePersonByCpf()
+        onDeleted?.()
     }
 
     return (
