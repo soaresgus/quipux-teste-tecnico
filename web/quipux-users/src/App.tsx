@@ -4,6 +4,7 @@ import { LoginForm } from "./components/login-form"
 import { useState } from "react"
 import { RegisterForm } from "./components/register-form"
 import { PersonList } from "./components/person-list"
+import { CreatePersonDialog } from "./components/create-person-dialog"
 
 export function App() {
   const [isRegistering, setIsRegistering] = useState(false)
@@ -26,6 +27,8 @@ export function App() {
       <Header showLogoutButton />
 
       <PersonList />
+
+      <CreatePersonDialog />
     </main>
   )
 }
