@@ -1,9 +1,11 @@
 import type { Person } from "@/types/person";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { TrashIcon } from "lucide-react";
+import { Loader2, TrashIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useDeletePersonByCpf } from "@/hooks/useDeletePersonByCpf";
 import { formatCpf } from "@/lib/formatters/cpf";
+import { usePersonNationalitiesByCpf } from "@/hooks/usePersonNationalitiesByCpf";
+import countryNames from "@/constants/country-names.json";
 
 interface PersonCardProps {
     person: Person
@@ -11,6 +13,7 @@ interface PersonCardProps {
 
 export function PersonCard({ person }: PersonCardProps) {
     const { mutateAsync: deletePersonByCpf, isPending } = useDeletePersonByCpf(person.cpf)
+    const { data: nationalities, isLoading: isNationalitiesLoading } = usePersonNationalitiesByCpf(person.cpf)
 
     const handleDeletePersonByCpf = async () => {
         await deletePersonByCpf()
@@ -29,6 +32,18 @@ export function PersonCard({ person }: PersonCardProps) {
                 <div className="text-sm text-zinc-800 flex items-center gap-2">
                     <span className="font-bold">Email:</span>
                     <span>{person.email}</span>
+                </div>
+                <div className="text-sm text-zinc-800 flex items-center gap-2">
+                    <span className="font-bold">Nacionalidade (Previsão):</span>
+                    {isNationalitiesLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : (
+                        <span>
+                            {
+                                nationalities?.nationalities[0].country_id ?
+                                    `${countryNames[nationalities?.nationalities[0].country_id as keyof typeof countryNames]} (${nationalities?.nationalities[0].country_id})`
+                                    : "Nacionalidade não encontrada"
+                            }
+                        </span>
+                    )}
                 </div>
             </CardContent>
             <CardFooter>
