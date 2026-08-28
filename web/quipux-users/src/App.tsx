@@ -1,17 +1,29 @@
-import { Button } from "@/components/ui/button"
+import { Header } from "@/components/header"
+import { useAuth } from "./context/AuthContext"
+import { LoginForm } from "./components/login-form"
+import { useState } from "react"
+import { RegisterForm } from "./components/register-form"
 
 export function App() {
-  return (
-    <div className="flex min-h-svh p-6">
-      <div className="flex max-w-md min-w-0 flex-col gap-4 text-sm leading-loose">
-        <div>
-          <h1 className="font-medium">Project ready!</h1>
-          <p>You may now add components and start building.</p>
-          <p>We&apos;ve already added the button component for you.</p>
-          <Button className="mt-2">Button</Button>
+  const [isRegistering, setIsRegistering] = useState(false)
+  const { authToken } = useAuth()
+
+  if (!authToken) {
+    return (
+      <main className="min-h-svh flex flex-col bg-zinc-200">
+        <Header />
+
+        <div className="flex flex-col items-center justify-center flex-1">
+          {isRegistering ? <RegisterForm onBackToLogin={() => setIsRegistering(false)} /> : <LoginForm onRegister={() => setIsRegistering(true)} />}
         </div>
-      </div>
-    </div>
+      </main>
+    )
+  }
+
+  return (
+    <main className="min-h-svh flex flex-col bg-zinc-200">
+      <Header showLogoutButton />
+    </main>
   )
 }
 
